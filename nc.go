@@ -172,6 +172,7 @@ func nctime_to_rsstime(nctime string) string {
 
 func get_rss(ctx *web.Context) {
     log.Stderrf("get_rss\n")
+    ctx.SetHeader("Content-Type", "application/rss+xml", false)
     t := rss_template
     m := map[string]interface{}{ "title": *title, "url": *url }
     if entries, err := nobodycares.LoadRange("", *max_entries); err == nil {
@@ -195,6 +196,7 @@ func get_rss(ctx *web.Context) {
 }
 
 func get_css(ctx *web.Context, path string) {
+    log.Stderrf("get_css\n")
     ctx.SetHeader("Content-Type", "text/css", false)
     ctx.WriteString(css_str)
 }
