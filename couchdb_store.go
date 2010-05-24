@@ -34,10 +34,10 @@ func NewCouchStore(host, port, dbname string) CouchStore {
     id_rev := new(couch.IdAndRev)
     if _, err := db.Retrieve("_design/entry", id_rev); err != nil {
         type EntryView struct {
-            Id string
+            Id    string
             Views map[string]interface{}
         }
-        vv := map[string]interface{}{ "by_date": map[string]string{ "map": "function(doc) { if (doc.Type == 'Entry') { emit(doc.Date, doc) } }" } }
+        vv := map[string]interface{}{"by_date": map[string]string{"map": "function(doc) { if (doc.Type == 'Entry') { emit(doc.Date, doc) } }"}}
         ev := EntryView{"_design/entry", vv}
         if _, err := db.Edit(ev); err != nil {
             panic(fmt.Sprintf("couldn't Insert necessary view to CouchDB: %v", err))

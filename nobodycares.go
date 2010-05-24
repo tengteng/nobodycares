@@ -25,7 +25,7 @@ type BackingStore interface {
 }
 
 var (
-    store BackingStore
+    store         BackingStore
     password_hash string
 )
 

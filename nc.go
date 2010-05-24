@@ -72,15 +72,15 @@ const entry_template = `
 `
 
 const rss_template = `
-<rss version="2.0"> 
-    <channel> 
-        <title>{{title}}</title> 
-        <link>{{url}}</link> 
-        <language>en-us</language> 
-        <pubDate>{{most_recent_date}}</pubDate> 
-        <lastBuildDate>{{most_recent_date}}</lastBuildDate> 
-        <docs>http://blogs.law.harvard.edu/tech/rss</docs> 
-        <generator>NobodyCares microblog engine</generator> 
+<rss version="2.0">
+    <channel>
+        <title>{{title}}</title>
+        <link>{{url}}</link>
+        <language>en-us</language>
+        <pubDate>{{most_recent_date}}</pubDate>
+        <lastBuildDate>{{most_recent_date}}</lastBuildDate>
+        <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+        <generator>NobodyCares microblog engine</generator>
         {{#entries}}<item>
             <title>{{Date}}</title>
             <link>{{Guid}}</link>
@@ -89,7 +89,7 @@ const rss_template = `
             <guid>{{Guid}}</guid>
         </item>
         {{/entries}}
-    </channel> 
+    </channel>
 </rss>
 `
 
@@ -174,7 +174,7 @@ func get_rss(ctx *web.Context) {
     log.Stderrf("get_rss\n")
     ctx.SetHeader("Content-Type", "application/rss+xml", false)
     t := rss_template
-    m := map[string]interface{}{ "title": *title, "url": *url }
+    m := map[string]interface{}{"title": *title, "url": *url}
     if entries, err := nobodycares.LoadRange("", *max_entries); err == nil {
         type RSSEntry struct {
             nobodycares.Entry
@@ -200,7 +200,6 @@ func get_css(ctx *web.Context, path string) {
     ctx.SetHeader("Content-Type", "text/css", false)
     ctx.WriteString(css_str)
 }
-
 
 
 func post_post(ctx *web.Context) {
