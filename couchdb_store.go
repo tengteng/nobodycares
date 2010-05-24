@@ -77,15 +77,24 @@ func (p CouchStore) Load(id string) (Entry, os.Error) {
     return e, err
 }
 
-func (p CouchStore) LoadRange(startid string, limit int) ([]Entry, os.Error) {
+func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
     exclude_first := false
-    if len(startid) > 0 {
-        exclude_first = true
-        limit = limit + 1
+    fromdate := ""
+    if len(fromid) > 0 {
+        // need fromdate as well
+        fromentry := new(Entry)
+        if _, err := p.Database.Retrieve(fromid, fromentry); err == nil {
+            fromdate = fromentry.Date
+            exclude_first = true
+            limit = limit + 1
+        } else {
+            log.Stderrf("CouchStore: LoadRange: error retrieving %s: %v\n", fromid, err)
+        }
     }
     options := map[string]interface{}{"limit": limit, "descending": true}
     if exclude_first {
-        options["startkey_docid"] = startid
+        options["startkey"] = fromdate
+        options["startkey_docid"] = fromid
     }
     a, err := p.Database.Query("_design/entry/_view/by_date", options)
     if err != nil {

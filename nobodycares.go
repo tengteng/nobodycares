@@ -65,8 +65,8 @@ func Load(id string) (Entry, os.Error) {
     return store.Load(id)
 }
 
-func LoadRange(startid string, limit int) ([]Entry, os.Error) {
-    return store.LoadRange(startid, limit)
+func LoadRange(fromid string, limit int) ([]Entry, os.Error) {
+    return store.LoadRange(fromid, limit)
 }
 
 func Delete(id, pwhash string) os.Error {

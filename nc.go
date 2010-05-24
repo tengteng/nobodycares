@@ -120,9 +120,22 @@ func get_root(ctx *web.Context) {
 
 func get_from(ctx *web.Context, id string) {
     log.Stderrf("get_root\n")
-    t := page(`{{#entries}}` + entry_template + `{{/entries}}`)
+    p := `
+        {{#entries}}` + entry_template + `{{/entries}}
+        <br/>
+        <!-- get_from id {{id}} -->
+        {{#from_id}}
+            <a href="/from/{{from_id}}">Older &gt;</a>
+        {{/from_id}}
+    `
+    t := page(p)
     m := make(map[string]interface{})
-    m["entries"], _ = nobodycares.LoadRange(id, *max_entries)
+    entries, _ := nobodycares.LoadRange(id, *max_entries)
+    m["entries"] = entries
+    m["id"] = id
+    if len(entries) == *max_entries {
+        m["from_id"] = entries[len(entries)-1].Id
+    }
     s, _ := mustache.Render(t, m)
     ctx.WriteString(s)
 }
