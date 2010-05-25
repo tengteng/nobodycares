@@ -43,7 +43,7 @@ const page_str = `
 const css_str = `
 body { font-family: monospace; text-transform:uppercase; }
 a { color:#777; }
-.c { width: 400px; margin: 0 auto; margin-top: 100px; }
+.c { width: 400px; margin: 0 auto; margin-top: 50px; }
 `
 
 const edit_form_template = `
