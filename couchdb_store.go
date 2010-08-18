@@ -78,21 +78,18 @@ func (p CouchStore) Load(id string) (Entry, os.Error) {
 }
 
 func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
-    exclude_first := false
     fromdate := ""
     if len(fromid) > 0 {
         // need fromdate as well
         fromentry := new(Entry)
         if _, err := p.Database.Retrieve(fromid, fromentry); err == nil {
             fromdate = fromentry.Date
-            exclude_first = true
-            limit = limit + 1
         } else {
             log.Stderrf("CouchStore: LoadRange: error retrieving %s: %v\n", fromid, err)
         }
     }
     options := map[string]interface{}{"limit": limit, "descending": true}
-    if exclude_first {
+    if len(fromid) > 0 && len(fromdate) > 0 {
         options["startkey"] = fromdate
         options["startkey_docid"] = fromid
     }
@@ -100,9 +97,6 @@ func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
     if err != nil {
         log.Stderrf("CouchStore: LoadRange: error during Query: %v\n", err)
         return make([]Entry, 0), err
-    }
-    if exclude_first && len(a) == limit {
-        a = a[1:]
     }
     ea := make([]Entry, len(a))
     for i := 0; i < len(a); i++ {
