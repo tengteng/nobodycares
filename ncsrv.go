@@ -4,6 +4,8 @@ import (
     "log"
     "fmt"
     "time"
+    "bytes"
+    "template"
     "nobodycares"
     "github.com/hoisie/web.go"
     "github.com/hoisie/mustache.go"
@@ -93,6 +95,13 @@ const rss_template = `
 </rss>
 `
 
+func htmlize(input string) string {
+	b := []byte(input)
+	output := bytes.NewBufferString("")
+	template.HTMLEscape(output, b)
+	return output.String()
+}
+
 func page(content string) string {
     return fmt.Sprintf(page_str, *title, *title, content)
 }
@@ -109,7 +118,7 @@ func edit_form(action, id, date, body, button_label string) string {
     }
     m["body"] = body
     m["button_label"] = button_label
-    s, _ := mustache.Render(t, m)
+    s := mustache.Render(t, m)
     return s
 }
 
@@ -131,12 +140,15 @@ func get_from(ctx *web.Context, id string) {
     t := page(p)
     m := make(map[string]interface{})
     entries, _ := nobodycares.LoadRange(id, *max_entries)
+    for i, _ := range entries {
+        entries[i].Body = htmlize(entries[i].Body)
+    }
     m["entries"] = entries
     m["id"] = id
     if len(entries) == *max_entries {
         m["from_id"] = entries[len(entries)-1].Id
     }
-    s, _ := mustache.Render(t, m)
+    s := mustache.Render(t, m)
     ctx.WriteString(s)
 }
 
@@ -168,7 +180,7 @@ func get_specific_id(ctx *web.Context, id string) {
     if e, err := nobodycares.Load(id); err == nil {
         t := entry_template
         m := map[string]interface{}{"Id": e.Id, "Date": e.Date, "Body": e.Body}
-        s, _ := mustache.Render(t, m)
+        s := mustache.Render(t, m)
         ctx.WriteString(page(s))
     } else {
         ctx.WriteString(page(fmt.Sprintf("<p>Invalid ID</p> <!--%v-->", err)))
@@ -201,7 +213,7 @@ func get_rss(ctx *web.Context) {
         }
         m["entries"] = rss_entries
         m["most_recent_date"] = nctime_to_rsstime(entries[0].Date)
-        s, _ := mustache.Render(t, m)
+        s := mustache.Render(t, m)
         ctx.WriteString(s)
     } else {
         ctx.WriteString(page(fmt.Sprintf("<p>Error generating RSS: %s</p>", err)))
