@@ -96,10 +96,10 @@ const rss_template = `
 `
 
 func htmlize(input string) string {
-	b := []byte(input)
-	output := bytes.NewBufferString("")
-	template.HTMLEscape(output, b)
-	return output.String()
+    b := []byte(input)
+    output := bytes.NewBufferString("")
+    template.HTMLEscape(output, b)
+    return output.String()
 }
 
 func page(content string) string {

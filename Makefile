@@ -9,12 +9,13 @@ GOFMT=gofmt -spaces=true -tabindent=false -tabwidth=4
 
 GOFILES=\
 	nobodycares.go\
-    couchdb_store.go\
+	couchdb_store.go\
 
 include $(GOROOT)/src/Make.pkg
 
 format:
 	${GOFMT} -w nobodycares.go
 	${GOFMT} -w couchdb_store.go
-	$(GOFMT) -w nc.go
+	${GOFMT} -w pwhash.go
+	$(GOFMT) -w ncsrv.go
 
