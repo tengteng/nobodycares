@@ -1,74 +1,42 @@
-package nobodycares
+package main
 
 import (
-    "os"
-    "fmt"
-    "io"
-    "crypto/sha256"
+	"fmt"
+	"flag"
+	"strconv"
+	"log"
+	"github.com/hoisie/web.go"
 )
 
-const (
-    NCTIME = "2006/01/02 15:04:05"
-)
+var title *string = flag.String("title", "Nobody Cares", "title of the microblog")
+var url *string = flag.String("url", "http://127.0.0.1", "base URL for the microblog (important!)")
+var host *string = flag.String("host", "0.0.0.0", "web server bind host/address")
+var port *int = flag.Int("port", 9999, "web server bind port")
+var max_entries *int = flag.Int("max_entries", 10, "max entries per page")
+var pwhash *string = flag.String("pwhash", "a5ad895656074bb12930374348bf903460016bcf430bf7039d7e34f0c505a7b1", "sha256 hash for password")
+var couch_host *string = flag.String("couch_host", "127.0.0.1", "CouchDB server")
+var couch_port *int = flag.Int("couch_port", 5984, "CouchDB port")
+var couch_name *string = flag.String("couch_name", "ncdb", "CouchDB database name")
 
-type Entry struct {
-    Id   string
-    Date string
-    Body string
-}
+func main() {
+	flag.Parse()
+	Init(NewCouchStore(*couch_host, strconv.Itoa(*couch_port), *couch_name), *pwhash)
+	log.Stderrf("nobodycares engine starting up...")
 
-type BackingStore interface {
-    Save(e Entry, pwhash string) os.Error
-    Load(id string) (Entry, os.Error)
-    LoadRange(startid string, limit int) ([]Entry, os.Error)
-    Delete(id string, pwhash string) os.Error
-}
+	web.Get("/", get_root)
+	web.Get("/from/([0-9a-f]+)", get_from)
+	web.Get("/post", get_post)
+	web.Get("/edit/([0-9a-f]+)", get_edit)
+	web.Get("/([0-9a-f]+)/edit", get_edit)
+	web.Get("/delete/([0-9a-f]+)", get_delete)
+	web.Get("/([0-9a-f]+)/delete", get_delete)
+	web.Get("/([0-9a-f]+)", get_specific_id)
+	web.Get("/rss", get_rss)
+	web.Get("/css/(.*)", get_css)
 
-var (
-    store         BackingStore
-    password_hash string
-)
+	web.Post("/post", post_post)
+	web.Post("/edit", post_edit)
+	web.Post("/delete", post_delete)
 
-// Generates unique ID
-func GenerateID() string {
-    // taken from Russ Cox 2010-02-24 post to golang-nuts
-    f, _ := os.Open("/dev/urandom", os.O_RDONLY, 0)
-    b := make([]byte, 16)
-    f.Read(b)
-    f.Close()
-    return fmt.Sprintf("%x%x%x%x%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-}
-
-func Hash(password string) string {
-    c := sha256.New()
-    io.WriteString(c, password)
-    return fmt.Sprintf("%x", c.Sum())
-}
-
-func Init(bs BackingStore, pwhash string) {
-    store = bs
-    if len(pwhash) <= 0 {
-        panic("invalid password hash")
-    }
-    password_hash = pwhash
-}
-
-func PasswordHash() string {
-    return password_hash
-}
-
-func Save(e Entry, pwhash string) os.Error {
-    return store.Save(e, pwhash)
-}
-
-func Load(id string) (Entry, os.Error) {
-    return store.Load(id)
-}
-
-func LoadRange(fromid string, limit int) ([]Entry, os.Error) {
-    return store.LoadRange(fromid, limit)
-}
-
-func Delete(id, pwhash string) os.Error {
-    return store.Delete(id, pwhash)
+	web.Run(fmt.Sprintf("%s:%d", *host, *port))
 }
