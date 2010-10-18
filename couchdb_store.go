@@ -13,14 +13,14 @@ type CouchStore struct {
 
 type CouchEntry struct {
 	Type string
-	Id   string
+	Id   string "_id"
 	Date string
 	Body string
 }
 
 type CouchFullEntry struct {
-	Id   string
-	Rev  string
+	Id   string "_id"
+	Rev  string "_rev"
 	Type string
 	Date string
 	Body string
@@ -81,7 +81,7 @@ func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
 	fromdate := ""
 	if len(fromid) > 0 {
 		// need fromdate as well
-		fromentry := new(Entry)
+		fromentry := new(CouchEntry)
 		if _, err := p.Database.Retrieve(fromid, fromentry); err == nil {
 			fromdate = fromentry.Date
 		} else {
@@ -100,8 +100,11 @@ func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
 	}
 	ea := make([]Entry, len(a))
 	for i := 0; i < len(a); i++ {
-		if _, err := p.Database.Retrieve(a[i], &ea[i]); err != nil {
+		ce := new(CouchEntry)
+		if _, err := p.Database.Retrieve(a[i], ce); err != nil {
 			log.Stderrf("CouchStore: LoadRange: error retrieving %s: %v\n", a[i], err)
+		} else {
+			ea[i] = Entry{Id:ce.Id, Date:ce.Date, Body:ce.Body}
 		}
 	}
 	return ea, nil
