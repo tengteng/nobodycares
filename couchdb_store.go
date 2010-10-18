@@ -72,9 +72,9 @@ func (p CouchStore) Save(e Entry, pwhash string) os.Error {
 }
 
 func (p CouchStore) Load(id string) (Entry, os.Error) {
-	e := Entry{}
+	e := CouchEntry{}
 	_, err := p.Database.Retrieve(id, &e)
-	return e, err
+	return Entry{Id:e.Id,Date:e.Date,Body:e.Body}, err
 }
 
 func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
