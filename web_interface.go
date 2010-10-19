@@ -89,13 +89,6 @@ const rss_template = `
 </rss>
 `
 
-func htmlize(input string) string {
-	b := []byte(input)
-	output := bytes.NewBufferString("")
-	template.HTMLEscape(output, b)
-	return output.String()
-}
-
 func page(content string) string {
 	return fmt.Sprintf(page_str, *title, *title, content)
 }
@@ -127,9 +120,6 @@ func get_from(ctx *web.Context, id string) {
 	t := page(p)
 	m := make(map[string]interface{})
 	entries, _ := LoadRange(id, *max_entries)
-	for i, _ := range entries {
-		entries[i].Body = htmlize(entries[i].Body)
-	}
 	m["entries"] = entries
 	m["id"] = id
 	if len(entries) == *max_entries {
