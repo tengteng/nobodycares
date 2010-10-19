@@ -47,7 +47,7 @@ func Hash(password string) string {
 
 func Init(bs BackingStore, pwhash string) {
 	store = bs
-	if len(pwhash) <= 0 {
+	if pwhash == "" {
 		panic("invalid password hash")
 	}
 	password_hash = pwhash
