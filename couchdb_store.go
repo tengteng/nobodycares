@@ -12,8 +12,8 @@ type CouchStore struct {
 }
 
 type CouchEntry struct {
-	Type string
 	Id   string "_id"
+	Type string
 	Date string
 	Body string
 }
@@ -54,16 +54,18 @@ func (p CouchStore) Save(e Entry, pwhash string) os.Error {
 		return os.NewError("invalid password")
 	}
 	// Save must overwrite existing Entry, if it exists
-	id_rev := couch.IdAndRev{}
+	id_rev := new(couch.IdAndRev)
 	if rev, err := p.Database.Retrieve(e.Id, &id_rev); err == nil && e.Id == id_rev.Id {
 		// Already exists: overwrite
-		full_e := CouchFullEntry{e.Id, rev, "Entry", e.Date, e.Body}
+		full_e := CouchFullEntry{Id:e.Id, Rev:rev, Type:"Entry", Date:e.Date, Body:e.Body}
+		log.Stderrf("Save: overwriting %s: %v", e.Id, full_e)
 		if _, err := p.Database.Edit(full_e); err != nil {
 			return err
 		}
 	} else {
 		// Doesn't exist: insert new
-		couch_e := CouchEntry{"Entry", e.Id, e.Date, e.Body}
+		log.Stderrf("Save: inserting new Entry: %s", e.Id)
+		couch_e := CouchEntry{Id:e.Id, Type:"Entry", Date:e.Date, Body:e.Body}
 		if _, _, err := p.Database.Insert(couch_e); err != nil {
 			return err
 		}

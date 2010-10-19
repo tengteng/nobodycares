@@ -12,7 +12,7 @@ const (
 )
 
 type Entry struct {
-	Id   string
+	Id   string // semantically same as CouchDB "_id" but must convert!
 	Date string
 	Body string
 }

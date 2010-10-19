@@ -218,8 +218,8 @@ func post_post(ctx *web.Context) {
 	date, date_ok := ctx.Request.Params["form_date"]
 	body, body_ok := ctx.Request.Params["form_body"]
 	pass, pass_ok := ctx.Request.Params["form_password"]
-	if date_ok && body_ok && pass_ok && len(date[0]) > 0 && len(body[0]) > 0 {
-		if err := Save(Entry{GenerateID(), date[0], body[0]}, Hash(pass[0])); err == nil {
+	if date_ok && body_ok && pass_ok && len(date) > 0 && len(body) > 0 {
+		if err := Save(Entry{GenerateID(), date, body}, Hash(pass)); err == nil {
 			ctx.WriteString(page("<p>Post successful</p>"))
 		} else {
 			ctx.WriteString(page(fmt.Sprintf("<p>Post failed: %v</p>", err)))
@@ -234,8 +234,8 @@ func post_edit(ctx *web.Context) {
 	date, date_ok := ctx.Request.Params["form_date"]
 	body, body_ok := ctx.Request.Params["form_body"]
 	pass, pass_ok := ctx.Request.Params["form_password"]
-	if id_ok && date_ok && body_ok && pass_ok && len(id[0]) > 0 && len(date[0]) > 0 && len(body[0]) > 0 {
-		if err := Save(Entry{id[0], date[0], body[0]}, Hash(pass[0])); err == nil {
+	if id_ok && date_ok && body_ok && pass_ok && len(id) > 0 && len(date) > 0 && len(body) > 0 {
+		if err := Save(Entry{id, date, body}, Hash(pass)); err == nil {
 			ctx.WriteString(page("<p>Edit successful</p>"))
 		} else {
 			ctx.WriteString(page(fmt.Sprintf("<p>Edit failed: %v</p>", err)))
@@ -248,8 +248,8 @@ func post_edit(ctx *web.Context) {
 func post_delete(ctx *web.Context) {
 	id, id_ok := ctx.Request.Params["form_id"]
 	pass, pass_ok := ctx.Request.Params["form_password"]
-	if id_ok && pass_ok && len(id[0]) > 0 {
-		if err := Delete(id[0], Hash(pass[0])); err == nil {
+	if id_ok && pass_ok && len(id) > 0 {
+		if err := Delete(id, Hash(pass)); err == nil {
 			ctx.WriteString(page("<p>Delete successful</p>"))
 		} else {
 			ctx.WriteString(page(fmt.Sprintf("<p>Delete failed: %v</p>", err)))
