@@ -122,7 +122,7 @@ func get_root(ctx *web.Context) {
 }
 
 func get_from(ctx *web.Context, id string) {
-	log.Stderrf("get_root\n")
+	log.Printf("get_root\n")
 	p := `{{#entries}}` + entry_template + `{{/entries}}` + footer_template
 	t := page(p)
 	m := make(map[string]interface{})
@@ -140,12 +140,12 @@ func get_from(ctx *web.Context, id string) {
 }
 
 func get_post(ctx *web.Context) {
-	log.Stderrf("get_post\n")
+	log.Printf("get_post\n")
 	ctx.WriteString(page(edit_form("/post", "", "", "", "Post")))
 }
 
 func get_edit(ctx *web.Context, id string) {
-	log.Stderrf("get_edit %s\n", id)
+	log.Printf("get_edit %s\n", id)
 	if e, err := Load(id); err == nil {
 		ctx.WriteString(page(edit_form("/edit", e.Id, e.Date, e.Body, "Edit")))
 	} else {
@@ -154,7 +154,7 @@ func get_edit(ctx *web.Context, id string) {
 }
 
 func get_delete(ctx *web.Context, id string) {
-	log.Stderrf("get_delete %s\n", id)
+	log.Printf("get_delete %s\n", id)
 	if e, err := Load(id); err == nil {
 		ctx.WriteString(page(edit_form("/delete", e.Id, e.Date, e.Body, "Really delete")))
 	} else {
@@ -163,7 +163,7 @@ func get_delete(ctx *web.Context, id string) {
 }
 
 func get_specific_id(ctx *web.Context, id string) {
-	log.Stderrf("get_specific_id %s\n", id)
+	log.Printf("get_specific_id %s\n", id)
 	if e, err := Load(id); err == nil {
 		t := entry_template
 		m := map[string]interface{}{"Id": e.Id, "Date": e.Date, "Body": e.Body}
@@ -178,12 +178,12 @@ func nctime_to_rsstime(nctime string) string {
 	if t, err := time.Parse(NCTIME, nctime); err == nil {
 		return t.Format(time.RFC1123)
 	}
-	log.Stderrf("nctime_to_rsstime: failed to convert '%s'\n", nctime)
+	log.Printf("nctime_to_rsstime: failed to convert '%s'\n", nctime)
 	return nctime
 }
 
 func get_rss(ctx *web.Context) {
-	log.Stderrf("get_rss\n")
+	log.Printf("get_rss\n")
 	ctx.SetHeader("Content-Type", "application/rss+xml", false)
 	t := rss_template
 	m := map[string]interface{}{"title": *title, "url": *url}
@@ -208,7 +208,7 @@ func get_rss(ctx *web.Context) {
 }
 
 func get_css(ctx *web.Context, path string) {
-	log.Stderrf("get_css\n")
+	log.Printf("get_css\n")
 	ctx.SetHeader("Content-Type", "text/css", false)
 	ctx.WriteString(css_str)
 }
