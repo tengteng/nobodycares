@@ -21,7 +21,7 @@ var couch_name *string = flag.String("couch_name", "ncdb", "CouchDB database nam
 func main() {
 	flag.Parse()
 	Init(NewCouchStore(*couch_host, strconv.Itoa(*couch_port), *couch_name), *pwhash)
-	log.Stderrf("nobodycares engine starting up...")
+	log.Printf("nobodycares engine starting up...")
 
 	web.Get("/", get_root)
 	web.Get("/from/([0-9a-f]+)", get_from)
