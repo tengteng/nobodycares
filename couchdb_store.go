@@ -57,15 +57,15 @@ func (p CouchStore) Save(e Entry, pwhash string) os.Error {
 	id_rev := new(couch.IdAndRev)
 	if rev, err := p.Database.Retrieve(e.Id, &id_rev); err == nil && e.Id == id_rev.Id {
 		// Already exists: overwrite
-		full_e := CouchFullEntry{Id:e.Id, Rev:rev, Type:"Entry", Date:e.Date, Body:e.Body}
-		log.Stderrf("Save: overwriting %s: %v", e.Id, full_e)
+		full_e := CouchFullEntry{Id: e.Id, Rev: rev, Type: "Entry", Date: e.Date, Body: e.Body}
+		log.Printf("Save: overwriting %s: %v", e.Id, full_e)
 		if _, err := p.Database.Edit(full_e); err != nil {
 			return err
 		}
 	} else {
 		// Doesn't exist: insert new
-		log.Stderrf("Save: inserting new Entry: %s", e.Id)
-		couch_e := CouchEntry{Id:e.Id, Type:"Entry", Date:e.Date, Body:e.Body}
+		log.Printf("Save: inserting new Entry: %s", e.Id)
+		couch_e := CouchEntry{Id: e.Id, Type: "Entry", Date: e.Date, Body: e.Body}
 		if _, _, err := p.Database.Insert(couch_e); err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func (p CouchStore) Save(e Entry, pwhash string) os.Error {
 func (p CouchStore) Load(id string) (Entry, os.Error) {
 	e := CouchEntry{}
 	_, err := p.Database.Retrieve(id, &e)
-	return Entry{Id:e.Id,Date:e.Date,Body:e.Body}, err
+	return Entry{Id: e.Id, Date: e.Date, Body: e.Body}, err
 }
 
 func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
@@ -87,7 +87,7 @@ func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
 		if _, err := p.Database.Retrieve(fromid, fromentry); err == nil {
 			fromdate = fromentry.Date
 		} else {
-			log.Stderrf("CouchStore: LoadRange: error retrieving %s: %v\n", fromid, err)
+			log.Printf("CouchStore: LoadRange: error retrieving %s: %v\n", fromid, err)
 		}
 	}
 	options := map[string]interface{}{"limit": limit, "descending": true}
@@ -97,16 +97,16 @@ func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
 	}
 	a, err := p.Database.Query("_design/entry/_view/by_date", options)
 	if err != nil {
-		log.Stderrf("CouchStore: LoadRange: error during Query: %v\n", err)
+		log.Printf("CouchStore: LoadRange: error during Query: %v\n", err)
 		return make([]Entry, 0), err
 	}
 	ea := make([]Entry, len(a))
 	for i := 0; i < len(a); i++ {
 		ce := new(CouchEntry)
 		if _, err := p.Database.Retrieve(a[i], ce); err != nil {
-			log.Stderrf("CouchStore: LoadRange: error retrieving %s: %v\n", a[i], err)
+			log.Printf("CouchStore: LoadRange: error retrieving %s: %v\n", a[i], err)
 		} else {
-			ea[i] = Entry{Id:ce.Id, Date:ce.Date, Body:ce.Body}
+			ea[i] = Entry{Id: ce.Id, Date: ce.Date, Body: ce.Body}
 		}
 	}
 	return ea, nil
