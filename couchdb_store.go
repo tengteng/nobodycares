@@ -95,7 +95,8 @@ func (p CouchStore) LoadRange(fromid string, limit int) ([]Entry, os.Error) {
 		options["startkey"] = fromdate
 		options["startkey_docid"] = fromid
 	}
-	a, err := p.Database.Query("_design/entry/_view/by_date", options)
+	a := make(map[int]string)
+	err := p.Database.Query("_design/entry/_view/by_date", options, a)
 	if err != nil {
 		log.Printf("CouchStore: LoadRange: error during Query: %v\n", err)
 		return make([]Entry, 0), err
