@@ -3,10 +3,7 @@ package main
 import (
 	"os"
 	"diskv.googlecode.com/hg"
-)
-
-const (
-	max_cache_sz = 1024*1024*100 // 100MB
+	"json"
 )
 
 type DiskvStore struct {
@@ -26,11 +23,13 @@ func NewDiskvStore(basedir string, maxsz uint32) (DiskvStore, os.Error) {
 }
 
 func marshal(e Entry) ([]byte, os.Error) {
-	return []byte{}, os.NewError("not yet implemented")
+	return json.Marshal(e)
 }
 
 func unmarshal(buf []byte) (Entry, os.Error) {
-	return Entry{}, os.NewError("not yet implemented")
+	e := Entry{}
+	err := json.Unmarshal(buf, e)
+	return e, err
 }
 
 func (p DiskvStore) Save(e Entry, pwhash string) os.Error {
@@ -41,10 +40,7 @@ func (p DiskvStore) Save(e Entry, pwhash string) os.Error {
 	if err != nil {
 		return err
 	}
-	if err = p.Store.Write(diskv.KeyType(e.Id), buf); err != nil {
-		return err
-	}
-	return nil
+	return p.Store.Write(diskv.KeyType(e.Id), buf)
 }
 
 func (p DiskvStore) Load(id string) (Entry, os.Error) {
@@ -52,11 +48,7 @@ func (p DiskvStore) Load(id string) (Entry, os.Error) {
 	if err != nil {
 		return Entry{}, err
 	}
-	e, err := unmarshal(buf)
-	if err != nil {
-		return Entry{}, err
-	}
-	return e, nil
+	return unmarshal(buf)
 }
 
 func (p DiskvStore) LoadRange(startid string, limit int) ([]Entry, os.Error) {
@@ -67,9 +59,6 @@ func (p DiskvStore) Delete(id string, pwhash string) os.Error {
 	if pwhash != PasswordHash() {
 		return os.NewError("invalid password")
 	}
-	if err := p.Store.Erase(diskv.KeyType(id)); err != nil {
-		return err
-	}
-	return nil
+	return p.Store.Erase(diskv.KeyType(id))
 }
 
