@@ -2,8 +2,10 @@ package main
 
 import (
 	"os"
+	"fmt"
 	"diskv.googlecode.com/hg"
 	"json"
+	"time"
 )
 
 type DiskvStore struct {
@@ -14,12 +16,12 @@ func IDTransform(id diskv.KeyType) []string {
 	return []string{string(id)} // TODO
 }
 
-func NewDiskvStore(basedir string, maxsz uint32) (DiskvStore, os.Error) {
+func NewDiskvStore(basedir string, maxsz uint32) DiskvStore {
 	cs, err := diskv.NewCachedStore(basedir, IDTransform, maxsz)
 	if err != nil {
-		return DiskvStore{nil}, err
+		panic(fmt.Sprintf("couldn't create diskv store: %s", err))
 	}
-	return DiskvStore{cs}, nil
+	return DiskvStore{cs}
 }
 
 func marshal(e Entry) ([]byte, os.Error) {
@@ -32,9 +34,16 @@ func unmarshal(buf []byte) (Entry, os.Error) {
 	return e, err
 }
 
+func generate_id() string {
+	return fmt.Sprintf("%x", time.UTC().Seconds())
+}
+
 func (p DiskvStore) Save(e Entry, pwhash string) os.Error {
 	if pwhash != PasswordHash() {
 		return os.NewError("invalid password")
+	}
+	if len(e.Id) <= 0 {
+		e.Id = generate_id()
 	}
 	buf, err := marshal(e)
 	if err != nil {

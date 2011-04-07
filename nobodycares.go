@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"flag"
-	"strconv"
 	"log"
 	"github.com/hoisie/web.go"
 )
@@ -14,13 +13,13 @@ var host *string = flag.String("host", "0.0.0.0", "web server bind host/address"
 var port *int = flag.Int("port", 9999, "web server bind port")
 var max_entries *int = flag.Int("max_entries", 10, "max entries per page")
 var pwhash *string = flag.String("pwhash", "", "sha256 hash for password")
-var couch_host *string = flag.String("couch_host", "127.0.0.1", "CouchDB server")
-var couch_port *int = flag.Int("couch_port", 5984, "CouchDB port")
-var couch_name *string = flag.String("couch_name", "ncdb", "CouchDB database name")
+
+var dir *string = flag.String("dir", ".", "base dir for diskv store")
+var maxsz *uint = flag.Uint("max_size", 1024*1024*10, "max cache size (bytes)")
 
 func main() {
 	flag.Parse()
-	Init(NewCouchStore(*couch_host, strconv.Itoa(*couch_port), *couch_name), *pwhash)
+	Init(NewDiskvStore(*dir, uint32(*maxsz)), *pwhash)
 	log.Printf("nobodycares engine starting up...")
 
 	web.Get("/", get_root)
