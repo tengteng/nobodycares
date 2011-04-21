@@ -9,15 +9,22 @@ import (
 )
 
 type DiskvStore struct {
-	Store *diskv.CachedStore
+	Store *diskv.OrderedCachedStore
 }
 
 func IDTransform(id diskv.KeyType) []string {
 	return []string{string(id)} // TODO
 }
 
+func UTCGreater(a, b interface{}) bool {
+	var ai, bi int64
+	fmt.Sscanf(string(a.(diskv.KeyType)), "%x", &ai)
+	fmt.Sscanf(string(b.(diskv.KeyType)), "%x", &bi)
+	return ai > bi
+}
+
 func NewDiskvStore(basedir string, maxsz uint32) DiskvStore {
-	cs, err := diskv.NewCachedStore(basedir, IDTransform, maxsz)
+	cs, err := diskv.NewOrderedCachedStore(basedir, IDTransform, maxsz, UTCGreater)
 	if err != nil {
 		panic(fmt.Sprintf("couldn't create diskv store: %s", err))
 	}
@@ -30,12 +37,14 @@ func marshal(e Entry) ([]byte, os.Error) {
 
 func unmarshal(buf []byte) (Entry, os.Error) {
 	e := Entry{}
-	err := json.Unmarshal(buf, e)
+	err := json.Unmarshal(buf, &e)
 	return e, err
 }
 
 func generate_id() string {
-	return fmt.Sprintf("%x", time.UTC().Seconds())
+	i := time.UTC().Seconds()
+	s := fmt.Sprintf("%x", i)
+	return s
 }
 
 func (p DiskvStore) Save(e Entry, pwhash string) os.Error {
@@ -61,7 +70,26 @@ func (p DiskvStore) Load(id string) (Entry, os.Error) {
 }
 
 func (p DiskvStore) LoadRange(startid string, limit int) ([]Entry, os.Error) {
-	return []Entry{}, os.NewError("not yet implemented")
+	keys, err := p.Store.KeysFrom(diskv.KeyType(startid), limit)
+	if err != nil {
+		panic(fmt.Sprintf("%v", err))
+		return []Entry{}, err
+	}
+	entries := make([]Entry, len(keys))
+	for i, k := range keys {
+		buf, err := p.Store.Read(k)
+		if err != nil {
+			panic(fmt.Sprintf("%v", err))
+			return []Entry{}, err
+		}
+		entry, err := unmarshal(buf)
+		if err != nil {
+			panic(fmt.Sprintf("%v", err))
+			return []Entry{}, err
+		}
+		entries[i] = entry
+	}
+	return entries, nil
 }
 
 func (p DiskvStore) Delete(id string, pwhash string) os.Error {
