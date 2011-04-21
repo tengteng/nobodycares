@@ -207,7 +207,7 @@ func post_post(ctx *web.Context) {
 	body, body_ok := ctx.Request.Params["form_body"]
 	pass, pass_ok := ctx.Request.Params["form_password"]
 	if date_ok && body_ok && pass_ok && len(date) > 0 && len(body) > 0 {
-		if err := Save(Entry{GenerateID(), date, body}, Hash(pass)); err == nil {
+		if err := Save(Entry{"", date, body}, Hash(pass)); err == nil {
 			ctx.WriteString(page("<p>Post successful</p>"))
 		} else {
 			ctx.WriteString(page(fmt.Sprintf("<p>Post failed: %v</p>", err)))
