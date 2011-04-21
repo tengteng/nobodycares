@@ -98,4 +98,3 @@ func (p DiskvStore) Delete(id string, pwhash string) os.Error {
 	}
 	return p.Store.Erase(diskv.KeyType(id))
 }
-
