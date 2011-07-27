@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"flag"
 	"log"
-	"github.com/hoisie/web.go"
+	"web"
 )
 
 var title *string = flag.String("title", "Nobody Cares", "title of the microblog")
