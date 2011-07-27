@@ -4,8 +4,8 @@ import (
 	"log"
 	"fmt"
 	"time"
-	"github.com/hoisie/web.go"
-	"github.com/hoisie/mustache.go"
+	"web"
+	"mustache"
 )
 
 const page_str = `

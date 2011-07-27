@@ -4,29 +4,15 @@
 
 include $(GOROOT)/src/Make.inc
 
-NOBODYCARES_GOFILES=\
+TARG=nobodycares
+GOFILES=\
 	nobodycares.go\
 	web_interface.go\
 	backing_store.go\
 	diskv_store.go\
 
-PWHASH_GOFILES=\
-	pwhash.go\
-	backing_store.go\
+include $(GOROOT)/src/Make.cmd
 
-all: nobodycares pwhash
+test:
+	gotest
 
-nobodycares: $(NOBODYCARES_GOFILES)
-	$(GC) -o $@.$O $(NOBODYCARES_GOFILES)
-	$(LD) -o $@ $@.$O
-
-pwhash: $(PWHASH_GOFILES)
-	$(GC) -o $@.$O $(PWHASH_GOFILES)
-	$(LD) -o $@ $@.$O
-
-clean:
-	rm -f *.[$(OS)] $(CLEANFILES) nobodycares pwhash
-
-format: $(NOBODYCARES_GOFILES) $(PWHASH_GOFILES)
-	gofmt -w $^
-	
