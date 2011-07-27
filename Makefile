@@ -8,7 +8,6 @@ NOBODYCARES_GOFILES=\
 	nobodycares.go\
 	web_interface.go\
 	backing_store.go\
-	couchdb_store.go\
 	diskv_store.go\
 
 PWHASH_GOFILES=\
